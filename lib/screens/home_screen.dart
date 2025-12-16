@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 import '../core/theme/app_theme.dart';
@@ -19,35 +20,85 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final FocusNode _focusNode = FocusNode();
+
   @override
   void initState() {
     super.initState();
     // Initialize services when screen loads
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<ServiceProvider>().initialize();
+      // Request focus for keyboard shortcuts
+      _focusNode.requestFocus();
     });
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final serviceProvider = context.read<ServiceProvider>();
+    final themeProvider = context.read<ThemeProvider>();
 
-    return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: AppTheme.getBackgroundGradient(isDark),
-        ),
-        child: Row(
-          children: [
-            // Sidebar
-            const ServiceSidebar()
-                .animate()
-                .fadeIn(duration: 300.ms)
-                .slideX(begin: -0.2, end: 0),
+    return CallbackShortcuts(
+      bindings: <ShortcutActivator, VoidCallback>{
+        // Ctrl+1 to Ctrl+6 for AI service selection
+        const SingleActivator(LogicalKeyboardKey.digit1, control: true): () =>
+            serviceProvider.selectServiceByIndex(0),
+        const SingleActivator(LogicalKeyboardKey.digit2, control: true): () =>
+            serviceProvider.selectServiceByIndex(1),
+        const SingleActivator(LogicalKeyboardKey.digit3, control: true): () =>
+            serviceProvider.selectServiceByIndex(2),
+        const SingleActivator(LogicalKeyboardKey.digit4, control: true): () =>
+            serviceProvider.selectServiceByIndex(3),
+        const SingleActivator(LogicalKeyboardKey.digit5, control: true): () =>
+            serviceProvider.selectServiceByIndex(4),
+        const SingleActivator(LogicalKeyboardKey.digit6, control: true): () =>
+            serviceProvider.selectServiceByIndex(5),
+        // Ctrl+Left/Right for previous/next service
+        const SingleActivator(
+          LogicalKeyboardKey.arrowLeft,
+          control: true,
+        ): () =>
+            serviceProvider.previousService(),
+        const SingleActivator(
+          LogicalKeyboardKey.arrowRight,
+          control: true,
+        ): () =>
+            serviceProvider.nextService(),
+        // Ctrl+T for theme toggle
+        const SingleActivator(LogicalKeyboardKey.keyT, control: true): () =>
+            themeProvider.cycleTheme(),
+        // Ctrl+R for reload WebView
+        const SingleActivator(LogicalKeyboardKey.keyR, control: true): () =>
+            serviceProvider.onReload?.call(),
+      },
+      child: Focus(
+        focusNode: _focusNode,
+        autofocus: true,
+        child: Scaffold(
+          body: Container(
+            decoration: BoxDecoration(
+              gradient: AppTheme.getBackgroundGradient(isDark),
+            ),
+            child: Row(
+              children: [
+                // Sidebar
+                const ServiceSidebar()
+                    .animate()
+                    .fadeIn(duration: 300.ms)
+                    .slideX(begin: -0.2, end: 0),
 
-            // Main content area
-            Expanded(child: _buildMainContent()),
-          ],
+                // Main content area
+                Expanded(child: _buildMainContent()),
+              ],
+            ),
+          ),
         ),
       ),
     );

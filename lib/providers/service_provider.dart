@@ -62,6 +62,13 @@ class ServiceProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Select a service by its index in the list (for keyboard shortcuts)
+  void selectServiceByIndex(int index) {
+    if (index >= 0 && index < _services.length) {
+      selectService(_services[index]);
+    }
+  }
+
   // ============== SERVICE SELECTION ==============
 
   /// Select a service to display

@@ -5,6 +5,16 @@ Toutes les modifications notables de ce projet seront documentées dans ce fichi
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/),
 et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2025-12-16
+
+### Ajouté
+- **Raccourcis clavier** pour power users
+  - `Ctrl+1` à `Ctrl+6` : Sélection rapide de l'IA
+  - `Ctrl+←/→` : Service précédent/suivant
+  - `Ctrl+T` : Toggle thème
+  - `Ctrl+R` : Recharger WebView
+- Méthode `selectServiceByIndex` dans ServiceProvider
+
 ## [1.2.0] - 2025-12-16
 
 ### Ajouté
