@@ -6,7 +6,7 @@ import '../../providers/service_provider.dart';
 import '../loading/shimmer_loader.dart';
 
 /// WebView implementation for Windows using webview_windows
-/// Exposes navigation controls for back, forward, and reload
+/// WebView2 automatically persists cookies/localStorage in app data folder
 class WindowsWebView extends StatefulWidget {
   final String url;
   final String serviceId;
@@ -33,6 +33,8 @@ class _WindowsWebViewState extends State<WindowsWebView> {
 
   Future<void> _initializeWebView() async {
     try {
+      // WebView2 automatically persists cookies and localStorage
+      // in the app's local data folder
       await _controller.initialize();
 
       final provider = context.read<ServiceProvider>();

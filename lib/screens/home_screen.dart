@@ -87,42 +87,51 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Focus(
         focusNode: _focusNode,
         autofocus: true,
-        child: Scaffold(
-          body: Container(
-            decoration: BoxDecoration(
-              gradient: AppTheme.getBackgroundGradient(isDark),
-            ),
-            child: Row(
-              children: [
-                // Sidebar
-                const ServiceSidebar()
-                    .animate()
-                    .fadeIn(duration: 300.ms)
-                    .slideX(begin: -0.2, end: 0),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final isMobile = constraints.maxWidth < 600;
 
-                // Main content area
-                Expanded(child: _buildMainContent()),
-              ],
-            ),
-          ),
+            return Scaffold(
+              // Drawer for mobile only
+              drawer: isMobile ? const Drawer(child: ServiceSidebar()) : null,
+              body: Container(
+                decoration: BoxDecoration(
+                  gradient: AppTheme.getBackgroundGradient(isDark),
+                ),
+                child: Row(
+                  children: [
+                    // Sidebar (desktop only)
+                    if (!isMobile)
+                      const ServiceSidebar()
+                          .animate()
+                          .fadeIn(duration: 300.ms)
+                          .slideX(begin: -0.2, end: 0),
+
+                    // Main content area
+                    Expanded(child: _buildMainContent(isMobile: isMobile)),
+                  ],
+                ),
+              ),
+            );
+          },
         ),
       ),
     );
   }
 
-  Widget _buildMainContent() {
+  Widget _buildMainContent({bool isMobile = false}) {
     return Consumer<ServiceProvider>(
       builder: (context, provider, child) {
         final activeService = provider.activeService;
 
         if (activeService == null) {
-          return _buildEmptyState();
+          return _buildEmptyState(isMobile: isMobile);
         }
 
         return Column(
           children: [
             // Top bar with service info
-            _buildTopBar(provider),
+            _buildTopBar(provider, isMobile: isMobile),
 
             // WebView container
             Expanded(
@@ -180,12 +189,17 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildTopBar(ServiceProvider provider) {
+  Widget _buildTopBar(ServiceProvider provider, {bool isMobile = false}) {
     final activeService = provider.activeService!;
     final colorScheme = Theme.of(context).colorScheme;
 
     return Container(
-      margin: const EdgeInsets.only(right: 12, top: 12, bottom: 8),
+      margin: EdgeInsets.only(
+        right: 12,
+        top: 12,
+        bottom: 8,
+        left: isMobile ? 12 : 0,
+      ),
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       decoration: BoxDecoration(
         color: colorScheme.surface.withOpacity(0.8),
@@ -197,6 +211,15 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       child: Row(
         children: [
+          // Hamburger menu for mobile drawer
+          if (isMobile)
+            IconButton(
+              icon: Icon(Icons.menu_rounded, color: activeService.primaryColor),
+              onPressed: () => Scaffold.of(context).openDrawer(),
+              tooltip: 'Menu',
+            ),
+          if (isMobile) const SizedBox(width: 8),
+
           // Service indicator
           Container(
             width: 36,
@@ -359,7 +382,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildEmptyState() {
+  Widget _buildEmptyState({bool isMobile = false}) {
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
