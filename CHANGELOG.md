@@ -5,6 +5,19 @@ Toutes les modifications notables de ce projet seront documentées dans ce fichi
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/),
 et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2025-12-16
+
+### Ajouté
+- **Gestion des thèmes** : Light, Dark, et System avec persistance
+- **ThemeProvider** pour la gestion centralisée du thème avec `shared_preferences`
+- Bouton de toggle de thème dans la TopBar avec animation
+
+### Modifié
+- Tous les éléments UI utilisent maintenant `Theme.of(context).colorScheme` au lieu de couleurs hardcodées
+- TopBar affiche le nom et les boutons avec la couleur de l'IA sélectionnée
+- Cards sidebar affichent les couleurs d'accent de chaque IA en mode clair
+- Toolbar WebView utilise la couleur de l'IA active pour les icônes
+
 ## [1.1.0] - 2025-12-16
 
 ### Ajouté

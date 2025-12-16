@@ -2,28 +2,45 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'core/theme/app_theme.dart';
 import 'providers/service_provider.dart';
+import 'providers/theme_provider.dart';
 import 'screens/home_screen.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(const HubIAApp());
+
+  // Initialize theme provider before running app
+  final themeProvider = ThemeProvider();
+  await themeProvider.initialize();
+
+  runApp(HubIAApp(themeProvider: themeProvider));
 }
 
 /// Hub IA - Centralized AI Services Hub
 /// A premium Flutter application for accessing multiple AI services
 /// from a single, elegant interface.
 class HubIAApp extends StatelessWidget {
-  const HubIAApp({super.key});
+  final ThemeProvider themeProvider;
+
+  const HubIAApp({super.key, required this.themeProvider});
 
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
-      providers: [ChangeNotifierProvider(create: (_) => ServiceProvider())],
-      child: MaterialApp(
-        title: 'Hub IA',
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.darkTheme,
-        home: const HomeScreen(),
+      providers: [
+        ChangeNotifierProvider(create: (_) => ServiceProvider()),
+        ChangeNotifierProvider.value(value: themeProvider),
+      ],
+      child: Consumer<ThemeProvider>(
+        builder: (context, themeProvider, child) {
+          return MaterialApp(
+            title: 'Hub IA',
+            debugShowCheckedModeBanner: false,
+            theme: AppTheme.lightTheme,
+            darkTheme: AppTheme.darkTheme,
+            themeMode: themeProvider.flutterThemeMode,
+            home: const HomeScreen(),
+          );
+        },
       ),
     );
   }

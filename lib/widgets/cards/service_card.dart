@@ -30,6 +30,8 @@ class _ServiceCardState extends State<ServiceCard> {
   Widget build(BuildContext context) {
     final primaryColor = widget.service.primaryColor;
     final accentColor = widget.service.accentColor;
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return MouseRegion(
       onEnter: (_) => setState(() => _isHovered = true),
@@ -54,24 +56,29 @@ class _ServiceCardState extends State<ServiceCard> {
                 ? LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
-                    colors: [
-                      primaryColor.withOpacity(0.2),
-                      accentColor.withOpacity(0.1),
-                    ],
+                    colors: isDark
+                        ? [
+                            primaryColor.withOpacity(0.2),
+                            accentColor.withOpacity(0.1),
+                          ]
+                        : [
+                            primaryColor.withOpacity(0.15),
+                            primaryColor.withOpacity(0.05),
+                          ],
                   )
                 : null,
             color: widget.isSelected
                 ? null
                 : _isHovered
-                ? AppTheme.surfaceVariant
+                ? colorScheme.surfaceContainerHighest
                 : Colors.transparent,
             borderRadius: BorderRadius.circular(12),
             // Glowing border when selected
             border: Border.all(
               color: widget.isSelected
-                  ? primaryColor.withOpacity(0.6)
+                  ? primaryColor.withOpacity(isDark ? 0.6 : 0.8)
                   : _isHovered
-                  ? AppTheme.border.withOpacity(0.8)
+                  ? colorScheme.outline.withOpacity(0.5)
                   : Colors.transparent,
               width: widget.isSelected ? 1.5 : 1,
             ),
@@ -79,7 +86,7 @@ class _ServiceCardState extends State<ServiceCard> {
             boxShadow: widget.isSelected
                 ? [
                     BoxShadow(
-                      color: primaryColor.withOpacity(0.3),
+                      color: primaryColor.withOpacity(isDark ? 0.3 : 0.2),
                       blurRadius: 12,
                       spreadRadius: -2,
                     ),
@@ -104,22 +111,30 @@ class _ServiceCardState extends State<ServiceCard> {
                     children: [
                       Text(
                         widget.service.name,
-                        style: AppTheme.title.copyWith(
-                          fontSize: 14,
-                          color: widget.isSelected
-                              ? accentColor
-                              : AppTheme.textPrimary,
-                        ),
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(
+                              fontSize: 14,
+                              fontWeight: widget.isSelected
+                                  ? FontWeight.bold
+                                  : FontWeight.w600,
+                              color: widget.isSelected
+                                  ? primaryColor
+                                  : isDark
+                                  ? colorScheme.onSurface
+                                  : primaryColor,
+                            ),
                         overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 2),
                       Text(
                         widget.service.description,
-                        style: AppTheme.caption.copyWith(
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           fontSize: 11,
                           color: widget.isSelected
-                              ? accentColor.withOpacity(0.7)
-                              : AppTheme.textMuted,
+                              ? (isDark
+                                    ? accentColor.withOpacity(0.8)
+                                    : primaryColor.withOpacity(0.7))
+                              : colorScheme.onSurfaceVariant,
                         ),
                         overflow: TextOverflow.ellipsis,
                         maxLines: 1,
@@ -159,6 +174,9 @@ class _ServiceCardState extends State<ServiceCard> {
   }
 
   Widget _buildIcon(Color primaryColor, Color accentColor) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       width: 40,
       height: 40,
@@ -170,10 +188,14 @@ class _ServiceCardState extends State<ServiceCard> {
                 colors: [primaryColor, accentColor],
               )
             : null,
-        color: widget.isSelected ? null : AppTheme.surface,
+        color: widget.isSelected ? null : colorScheme.surface,
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
-          color: widget.isSelected ? Colors.transparent : AppTheme.border,
+          color: widget.isSelected
+              ? Colors.transparent
+              : isDark
+              ? colorScheme.outline.withOpacity(0.5)
+              : primaryColor.withOpacity(0.3),
           width: 1,
         ),
       ),
@@ -182,9 +204,9 @@ class _ServiceCardState extends State<ServiceCard> {
         size: 20,
         color: widget.isSelected
             ? Colors.white
-            : _isHovered
-            ? primaryColor
-            : AppTheme.textSecondary,
+            : isDark
+            ? (_isHovered ? primaryColor : colorScheme.onSurfaceVariant)
+            : primaryColor,
       ),
     );
   }
@@ -214,6 +236,8 @@ class _ServiceCardCompactState extends State<ServiceCardCompact> {
   Widget build(BuildContext context) {
     final primaryColor = widget.service.primaryColor;
     final accentColor = widget.service.accentColor;
+    final colorScheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Tooltip(
       message: widget.service.name,
@@ -241,15 +265,17 @@ class _ServiceCardCompactState extends State<ServiceCardCompact> {
               color: widget.isSelected
                   ? null
                   : _isHovered
-                  ? AppTheme.surfaceVariant
-                  : AppTheme.surface,
+                  ? colorScheme.surfaceContainerHighest
+                  : colorScheme.surface,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
                 color: widget.isSelected
                     ? Colors.transparent
-                    : _isHovered
-                    ? primaryColor.withOpacity(0.5)
-                    : AppTheme.border,
+                    : isDark
+                    ? (_isHovered
+                          ? primaryColor.withOpacity(0.5)
+                          : colorScheme.outline.withOpacity(0.5))
+                    : primaryColor.withOpacity(0.3),
                 width: 1,
               ),
               boxShadow: widget.isSelected
@@ -261,9 +287,9 @@ class _ServiceCardCompactState extends State<ServiceCardCompact> {
               size: 18,
               color: widget.isSelected
                   ? Colors.white
-                  : _isHovered
-                  ? primaryColor
-                  : AppTheme.textSecondary,
+                  : isDark
+                  ? (_isHovered ? primaryColor : colorScheme.onSurfaceVariant)
+                  : primaryColor,
             ),
           ),
         ),

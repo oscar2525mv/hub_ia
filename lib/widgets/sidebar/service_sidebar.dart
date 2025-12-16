@@ -98,20 +98,27 @@ class _ServiceSidebarState extends State<ServiceSidebar>
         return AnimatedBuilder(
           animation: _widthAnimation,
           builder: (context, child) {
+            final colorScheme = Theme.of(context).colorScheme;
+            final isDark = Theme.of(context).brightness == Brightness.dark;
+
             return SizedBox(
               width: _widthAnimation.value,
               child: Container(
                 margin: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: AppTheme.backgroundSecondary.withOpacity(0.7),
+                  color: isDark
+                      ? AppTheme.backgroundSecondary.withOpacity(0.7)
+                      : colorScheme.surface,
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
-                    color: AppTheme.border.withOpacity(0.5),
+                    color: colorScheme.outline.withOpacity(0.3),
                     width: 1,
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.3),
+                      color: isDark
+                          ? Colors.black.withOpacity(0.3)
+                          : Colors.black.withOpacity(0.1),
                       blurRadius: 20,
                       offset: const Offset(4, 0),
                     ),
@@ -158,15 +165,19 @@ class _ServiceSidebarState extends State<ServiceSidebar>
                     children: [
                       Text(
                             'Hub IA',
-                            style: AppTheme.title.copyWith(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
                           )
                           .animate()
                           .fadeIn(duration: 200.ms)
                           .slideX(begin: -0.2, end: 0),
-                      Text('AI Services Hub', style: AppTheme.caption)
+                      Text(
+                            'AI Services Hub',
+                            style: Theme.of(context).textTheme.bodySmall,
+                          )
                           .animate()
                           .fadeIn(duration: 200.ms, delay: 100.ms)
                           .slideX(begin: -0.2, end: 0),
@@ -252,7 +263,7 @@ class _ServiceSidebarState extends State<ServiceSidebar>
                   Expanded(
                     child: Text(
                       '${provider.services.length} services',
-                      style: AppTheme.caption,
+                      style: Theme.of(context).textTheme.bodySmall,
                       overflow: TextOverflow.ellipsis,
                     ).animate().fadeIn(duration: 200.ms),
                   ),
@@ -289,6 +300,8 @@ class _ToggleButtonState extends State<_ToggleButton> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return MouseRegion(
       onEnter: (_) => setState(() => _isHovered = true),
       onExit: (_) => setState(() => _isHovered = false),
@@ -300,12 +313,14 @@ class _ToggleButtonState extends State<_ToggleButton> {
           width: 32,
           height: 32,
           decoration: BoxDecoration(
-            color: _isHovered ? AppTheme.surfaceVariant : AppTheme.surface,
+            color: _isHovered
+                ? colorScheme.surfaceContainerHighest
+                : colorScheme.surface,
             borderRadius: BorderRadius.circular(10),
             border: Border.all(
               color: _isHovered
-                  ? AppTheme.primary.withOpacity(0.5)
-                  : AppTheme.border,
+                  ? colorScheme.primary.withOpacity(0.5)
+                  : colorScheme.outline.withOpacity(0.5),
               width: 1,
             ),
           ),
@@ -315,7 +330,9 @@ class _ToggleButtonState extends State<_ToggleButton> {
             child: Icon(
               Icons.chevron_left_rounded,
               size: 18,
-              color: _isHovered ? AppTheme.primary : AppTheme.textSecondary,
+              color: _isHovered
+                  ? colorScheme.primary
+                  : colorScheme.onSurfaceVariant,
             ),
           ),
         ),

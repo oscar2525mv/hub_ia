@@ -3,6 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 import '../core/theme/app_theme.dart';
 import '../providers/service_provider.dart';
+import '../providers/theme_provider.dart';
 import '../widgets/sidebar/service_sidebar.dart';
 import '../widgets/webview/platform_webview.dart';
 import '../widgets/webview/webview_toolbar.dart';
@@ -29,9 +30,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(gradient: AppTheme.backgroundGradient),
+        decoration: BoxDecoration(
+          gradient: AppTheme.getBackgroundGradient(isDark),
+        ),
         child: Row(
           children: [
             // Sidebar
@@ -67,7 +72,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Container(
                 margin: const EdgeInsets.only(right: 12, bottom: 12),
                 decoration: BoxDecoration(
-                  color: AppTheme.backgroundPrimary,
+                  color: Theme.of(context).scaffoldBackgroundColor,
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
                     color: activeService.primaryColor.withOpacity(0.3),
@@ -120,14 +125,18 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildTopBar(ServiceProvider provider) {
     final activeService = provider.activeService!;
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Container(
       margin: const EdgeInsets.only(right: 12, top: 12, bottom: 8),
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       decoration: BoxDecoration(
-        color: AppTheme.backgroundSecondary.withOpacity(0.5),
+        color: colorScheme.surface.withOpacity(0.8),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.border.withOpacity(0.3), width: 1),
+        border: Border.all(
+          color: colorScheme.outline.withOpacity(0.3),
+          width: 1,
+        ),
       ),
       child: Row(
         children: [
@@ -156,11 +165,18 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               Text(
                 activeService.name,
-                style: AppTheme.title.copyWith(fontSize: 16),
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: activeService.primaryColor,
+                ),
               ),
               Text(
                 activeService.url,
-                style: AppTheme.caption.copyWith(fontSize: 11),
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  fontSize: 11,
+                  color: activeService.primaryColor.withOpacity(0.7),
+                ),
               ),
             ],
           ).animate().fadeIn(duration: 200.ms).slideX(begin: -0.1, end: 0),
@@ -191,12 +207,65 @@ class _HomeScreenState extends State<HomeScreen> {
             icon: Icons.arrow_back_rounded,
             tooltip: 'Previous Service',
             onTap: () => provider.previousService(),
+            accentColor: activeService.primaryColor,
           ),
           const SizedBox(width: 8),
           _buildNavButton(
             icon: Icons.arrow_forward_rounded,
             tooltip: 'Next Service',
             onTap: () => provider.nextService(),
+            accentColor: activeService.primaryColor,
+          ),
+
+          // Divider before theme toggle
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 12),
+            width: 1,
+            height: 24,
+            color: colorScheme.outline.withOpacity(0.3),
+          ),
+
+          // Theme toggle button
+          Consumer<ThemeProvider>(
+            builder: (context, themeProvider, child) {
+              return Tooltip(
+                message: themeProvider.themeTooltip,
+                child: Material(
+                  color: Colors.transparent,
+                  child:
+                      InkWell(
+                            onTap: () => themeProvider.cycleTheme(),
+                            borderRadius: BorderRadius.circular(8),
+                            child: Container(
+                              width: 36,
+                              height: 36,
+                              decoration: BoxDecoration(
+                                color: colorScheme.surfaceContainerHighest,
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                  color: activeService.primaryColor.withOpacity(
+                                    0.5,
+                                  ),
+                                  width: 1,
+                                ),
+                              ),
+                              child: Icon(
+                                themeProvider.themeIcon,
+                                size: 18,
+                                color: activeService.primaryColor,
+                              ),
+                            ),
+                          )
+                          .animate(key: ValueKey(themeProvider.themeMode))
+                          .scale(
+                            begin: const Offset(0.8, 0.8),
+                            end: const Offset(1.0, 1.0),
+                            duration: 200.ms,
+                          )
+                          .fadeIn(duration: 200.ms),
+                ),
+              );
+            },
           ),
         ],
       ),
@@ -207,7 +276,10 @@ class _HomeScreenState extends State<HomeScreen> {
     required IconData icon,
     required String tooltip,
     required VoidCallback onTap,
+    required Color accentColor,
   }) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Tooltip(
       message: tooltip,
       child: Material(
@@ -219,11 +291,11 @@ class _HomeScreenState extends State<HomeScreen> {
             width: 32,
             height: 32,
             decoration: BoxDecoration(
-              color: AppTheme.surface,
+              color: colorScheme.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: AppTheme.border, width: 1),
+              border: Border.all(color: accentColor.withOpacity(0.3), width: 1),
             ),
-            child: Icon(icon, size: 16, color: AppTheme.textSecondary),
+            child: Icon(icon, size: 16, color: accentColor),
           ),
         ),
       ),

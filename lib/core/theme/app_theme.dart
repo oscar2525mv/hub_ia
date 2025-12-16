@@ -193,4 +193,157 @@ class AppTheme {
       textStyle: body.copyWith(color: textPrimary),
     ),
   );
+
+  // ============== LIGHT THEME COLORS ==============
+
+  /// Light background - off-white
+  static const Color lightBackgroundPrimary = Color(0xFFF8FAFC);
+
+  /// Light secondary background
+  static const Color lightBackgroundSecondary = Color(0xFFE2E8F0);
+
+  /// Light surface for cards
+  static const Color lightSurface = Color(0xFFFFFFFF);
+
+  /// Light surface variant
+  static const Color lightSurfaceVariant = Color(0xFFF1F5F9);
+
+  /// Light text primary
+  static const Color lightTextPrimary = Color(0xFF0F172A);
+
+  /// Light text secondary
+  static const Color lightTextSecondary = Color(0xFF475569);
+
+  /// Light text muted
+  static const Color lightTextMuted = Color(0xFF94A3B8);
+
+  /// Light border color
+  static const Color lightBorder = Color(0xFFCBD5E1);
+
+  // ============== LIGHT GRADIENTS ==============
+
+  /// Light background gradient
+  static const LinearGradient lightBackgroundGradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [lightBackgroundPrimary, lightBackgroundSecondary],
+  );
+
+  // ============== LIGHT THEME DATA ==============
+
+  /// Light theme text styles
+  static TextStyle get lightDisplayLarge => GoogleFonts.inter(
+    fontSize: 32,
+    fontWeight: FontWeight.bold,
+    color: lightTextPrimary,
+    letterSpacing: -0.5,
+  );
+
+  static TextStyle get lightHeading => GoogleFonts.inter(
+    fontSize: 24,
+    fontWeight: FontWeight.w600,
+    color: lightTextPrimary,
+  );
+
+  static TextStyle get lightTitle => GoogleFonts.inter(
+    fontSize: 18,
+    fontWeight: FontWeight.w600,
+    color: lightTextPrimary,
+  );
+
+  static TextStyle get lightBody => GoogleFonts.inter(
+    fontSize: 14,
+    fontWeight: FontWeight.normal,
+    color: lightTextSecondary,
+  );
+
+  static TextStyle get lightCaption => GoogleFonts.inter(
+    fontSize: 12,
+    fontWeight: FontWeight.normal,
+    color: lightTextMuted,
+  );
+
+  /// Full Light ThemeData for the application
+  static ThemeData get lightTheme => ThemeData(
+    useMaterial3: true,
+    brightness: Brightness.light,
+    scaffoldBackgroundColor: lightBackgroundPrimary,
+
+    // Color scheme
+    colorScheme: const ColorScheme.light(
+      primary: primary,
+      secondary: primaryLight,
+      surface: lightSurface,
+      error: error,
+    ),
+
+    // App bar
+    appBarTheme: AppBarTheme(
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      centerTitle: false,
+      titleTextStyle: lightHeading,
+      iconTheme: const IconThemeData(color: lightTextPrimary),
+    ),
+
+    // Card
+    cardTheme: const CardThemeData(
+      color: lightSurface,
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(16)),
+        side: BorderSide(color: lightBorder),
+      ),
+    ),
+
+    // Icon
+    iconTheme: const IconThemeData(color: lightTextSecondary, size: 24),
+
+    // Text
+    textTheme: TextTheme(
+      displayLarge: lightDisplayLarge,
+      headlineMedium: lightHeading,
+      titleMedium: lightTitle,
+      bodyMedium: lightBody,
+      bodySmall: lightCaption,
+    ),
+
+    // Divider
+    dividerColor: lightBorder,
+    dividerTheme: const DividerThemeData(color: lightBorder, thickness: 1),
+
+    // Tooltip
+    tooltipTheme: TooltipThemeData(
+      decoration: BoxDecoration(
+        color: lightSurface,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: lightBorder),
+      ),
+      textStyle: lightBody.copyWith(color: lightTextPrimary),
+    ),
+  );
+
+  // ============== DYNAMIC HELPERS ==============
+
+  /// Get background gradient based on brightness
+  static LinearGradient getBackgroundGradient(bool isDark) =>
+      isDark ? backgroundGradient : lightBackgroundGradient;
+
+  /// Get background primary based on brightness
+  static Color getBackgroundPrimary(bool isDark) =>
+      isDark ? backgroundPrimary : lightBackgroundPrimary;
+
+  /// Get surface color based on brightness
+  static Color getSurface(bool isDark) => isDark ? surface : lightSurface;
+
+  /// Get text primary based on brightness
+  static Color getTextPrimary(bool isDark) =>
+      isDark ? textPrimary : lightTextPrimary;
+
+  /// Get text secondary based on brightness
+  static Color getTextSecondary(bool isDark) =>
+      isDark ? textSecondary : lightTextSecondary;
+
+  /// Get border color based on brightness
+  static Color getBorder(bool isDark) => isDark ? border : lightBorder;
 }

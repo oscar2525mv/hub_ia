@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../../core/theme/app_theme.dart';
 
 /// Toolbar for WebView navigation controls
 /// Provides back, forward, reload, and open in browser buttons
@@ -29,12 +28,14 @@ class WebViewToolbar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: AppTheme.surface.withOpacity(0.5),
+        color: colorScheme.surface.withOpacity(0.8),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppTheme.border.withOpacity(0.3), width: 1),
+        border: Border.all(color: accentColor.withOpacity(0.3), width: 1),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -74,7 +75,7 @@ class WebViewToolbar extends StatelessWidget {
             margin: const EdgeInsets.symmetric(horizontal: 8),
             width: 1,
             height: 20,
-            color: AppTheme.border.withOpacity(0.5),
+            color: accentColor.withOpacity(0.3),
           ),
 
           // Open in browser button
@@ -120,6 +121,8 @@ class _ToolbarButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Tooltip(
       message: tooltip,
       child: Material(
@@ -133,16 +136,14 @@ class _ToolbarButton extends StatelessWidget {
             height: 32,
             decoration: BoxDecoration(
               color: enabled
-                  ? AppTheme.surface.withOpacity(0.8)
+                  ? colorScheme.surfaceContainerHighest
                   : Colors.transparent,
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(
               icon,
               size: 16,
-              color: enabled
-                  ? (isLoading ? accentColor : AppTheme.textSecondary)
-                  : AppTheme.textSecondary.withOpacity(0.3),
+              color: enabled ? accentColor : accentColor.withOpacity(0.3),
             ),
           ),
         ),
