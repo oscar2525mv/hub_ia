@@ -27,10 +27,8 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    // Initialize services when screen loads
+    // Request focus for keyboard shortcuts
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<ServiceProvider>().initialize();
-      // Request focus for keyboard shortcuts
       _focusNode.requestFocus();
     });
   }

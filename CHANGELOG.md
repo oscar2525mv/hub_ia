@@ -5,6 +5,15 @@ Toutes les modifications notables de ce projet seront documentées dans ce fichi
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/),
 et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] - 2025-12-16
+
+### Ajouté
+- **Persistance des données** via SharedPreferences
+  - Favoris sauvegardés entre sessions
+  - Visibilité des IAs persistante
+  - IAs personnalisées persistantes
+- Initialisation asynchrone des providers dans `main.dart`
+
 ## [1.4.0] - 2025-12-16
 
 ### Ajouté

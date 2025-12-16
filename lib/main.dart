@@ -8,11 +8,16 @@ import 'screens/home_screen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize theme provider before running app
+  // Initialize providers before running app
   final themeProvider = ThemeProvider();
   await themeProvider.initialize();
 
-  runApp(HubIAApp(themeProvider: themeProvider));
+  final serviceProvider = ServiceProvider();
+  await serviceProvider.initialize();
+
+  runApp(
+    HubIAApp(themeProvider: themeProvider, serviceProvider: serviceProvider),
+  );
 }
 
 /// Hub IA - Centralized AI Services Hub
@@ -20,14 +25,19 @@ void main() async {
 /// from a single, elegant interface.
 class HubIAApp extends StatelessWidget {
   final ThemeProvider themeProvider;
+  final ServiceProvider serviceProvider;
 
-  const HubIAApp({super.key, required this.themeProvider});
+  const HubIAApp({
+    super.key,
+    required this.themeProvider,
+    required this.serviceProvider,
+  });
 
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => ServiceProvider()),
+        ChangeNotifierProvider.value(value: serviceProvider),
         ChangeNotifierProvider.value(value: themeProvider),
       ],
       child: Consumer<ThemeProvider>(

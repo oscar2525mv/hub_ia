@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/ai_service.dart';
 
 /// State management for the AI service hub
@@ -51,13 +53,25 @@ class ServiceProvider extends ChangeNotifier {
   bool get canGoForward => _canGoForward;
   String? get currentUrl => _currentUrl;
 
+  // ============== PERSISTENCE KEYS ==============
+  static const String _favoritesKey = 'favorites';
+  static const String _visibilityKey = 'visibility';
+  static const String _customServicesKey = 'custom_services';
+
+  SharedPreferences? _prefs;
+
   // ============== INITIALIZATION ==============
 
-  /// Initialize with default services
-  void initialize() {
+  /// Initialize with default services and load saved data
+  Future<void> initialize() async {
+    _prefs = await SharedPreferences.getInstance();
     _services = AIServices.all;
+    await _loadCustomServices();
+    await _loadFavorites();
+    await _loadVisibility();
+    _sortServices();
     if (_services.isNotEmpty) {
-      selectService(_services.first);
+      selectService(_services.where((s) => s.isEnabled).first);
     }
     notifyListeners();
   }
@@ -115,6 +129,7 @@ class ServiceProvider extends ChangeNotifier {
       _services[index] = _services[index].copyWith(
         isEnabled: !_services[index].isEnabled,
       );
+      _saveVisibility();
       notifyListeners();
     }
   }
@@ -127,11 +142,8 @@ class ServiceProvider extends ChangeNotifier {
         isFavorite: !_services[index].isFavorite,
       );
       // Re-sort to put favorites first
-      _services.sort((a, b) {
-        if (a.isFavorite && !b.isFavorite) return -1;
-        if (!a.isFavorite && b.isFavorite) return 1;
-        return 0;
-      });
+      _sortServices();
+      _saveFavorites();
       notifyListeners();
     }
   }
@@ -147,7 +159,83 @@ class ServiceProvider extends ChangeNotifier {
       icon: Icons.smart_toy_outlined,
     );
     _services.add(newService);
+    _saveCustomServices();
     notifyListeners();
+  }
+
+  // ============== PERSISTENCE ==============
+
+  /// Sort services: favorites first
+  void _sortServices() {
+    _services.sort((a, b) {
+      if (a.isFavorite && !b.isFavorite) return -1;
+      if (!a.isFavorite && b.isFavorite) return 1;
+      return 0;
+    });
+  }
+
+  /// Load favorites from storage
+  Future<void> _loadFavorites() async {
+    final favoriteIds = _prefs?.getStringList(_favoritesKey) ?? [];
+    for (var i = 0; i < _services.length; i++) {
+      if (favoriteIds.contains(_services[i].id)) {
+        _services[i] = _services[i].copyWith(isFavorite: true);
+      }
+    }
+  }
+
+  /// Save favorites to storage
+  Future<void> _saveFavorites() async {
+    final favoriteIds = _services
+        .where((s) => s.isFavorite)
+        .map((s) => s.id)
+        .toList();
+    await _prefs?.setStringList(_favoritesKey, favoriteIds);
+  }
+
+  /// Load visibility from storage
+  Future<void> _loadVisibility() async {
+    final disabledIds = _prefs?.getStringList(_visibilityKey) ?? [];
+    for (var i = 0; i < _services.length; i++) {
+      if (disabledIds.contains(_services[i].id)) {
+        _services[i] = _services[i].copyWith(isEnabled: false);
+      }
+    }
+  }
+
+  /// Save visibility to storage
+  Future<void> _saveVisibility() async {
+    final disabledIds = _services
+        .where((s) => !s.isEnabled)
+        .map((s) => s.id)
+        .toList();
+    await _prefs?.setStringList(_visibilityKey, disabledIds);
+  }
+
+  /// Load custom services from storage
+  Future<void> _loadCustomServices() async {
+    final customJson = _prefs?.getStringList(_customServicesKey) ?? [];
+    for (final json in customJson) {
+      final data = jsonDecode(json) as Map<String, dynamic>;
+      _services.add(
+        AIService(
+          id: data['id'] as String,
+          name: data['name'] as String,
+          url: data['url'] as String,
+          description: 'IA personnalisée',
+          icon: Icons.smart_toy_outlined,
+        ),
+      );
+    }
+  }
+
+  /// Save custom services to storage
+  Future<void> _saveCustomServices() async {
+    final customServices = _services.where((s) => s.id.startsWith('custom_'));
+    final customJson = customServices
+        .map((s) => jsonEncode({'id': s.id, 'name': s.name, 'url': s.url}))
+        .toList();
+    await _prefs?.setStringList(_customServicesKey, customJson);
   }
 
   // ============== LOADING STATE ==============
