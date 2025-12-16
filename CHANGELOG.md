@@ -1,0 +1,28 @@
+# Changelog
+
+Toutes les modifications notables de ce projet seront documentées dans ce fichier.
+
+Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/),
+et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [1.1.0] - 2025-12-16
+
+### Ajouté
+- **Barre d'outils de navigation WebView** avec boutons Précédent, Suivant, Recharger
+- **Bouton "Ouvrir dans le navigateur"** pour ouvrir l'URL actuelle dans le navigateur système
+- **Indicateur de chargement linéaire** visible en haut de la WebView
+- Support de l'état de navigation (`canGoBack`, `canGoForward`) dans le provider
+
+### Modifié
+- Amélioration de la TopBar avec intégration de la toolbar de navigation
+- `WindowsWebView` expose maintenant les méthodes de navigation
+- `MobileWebView` expose maintenant les méthodes de navigation avec support natif
+
+## [1.0.0] - 2025-12-16
+
+### Ajouté
+- **Hub centralisé** pour accéder à plusieurs services IA (ChatGPT, Gemini, Claude, Copilot, Perplexity, Mistral)
+- **Sidebar** pour navigation entre les services
+- **WebViews persistantes** conservant l'état lors du changement d'onglet
+- **Thème sombre** par défaut avec design premium
+- Support Windows, Android et iOS
