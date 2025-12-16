@@ -69,9 +69,10 @@ class ServiceProvider extends ChangeNotifier {
     await _loadCustomServices();
     await _loadFavorites();
     await _loadVisibility();
-    _sortServices();
-    if (_services.isNotEmpty) {
-      selectService(_services.where((s) => s.isEnabled).first);
+    await _loadServiceOrder();
+    final enabledServices = _services.where((s) => s.isEnabled);
+    if (enabledServices.isNotEmpty) {
+      selectService(enabledServices.first);
     }
     notifyListeners();
   }
@@ -163,6 +164,37 @@ class ServiceProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Reorder services (for drag & drop)
+  void reorderService(int oldIndex, int newIndex) {
+    if (oldIndex < newIndex) {
+      newIndex -= 1;
+    }
+    final item = _services.removeAt(oldIndex);
+    _services.insert(newIndex, item);
+    _saveServiceOrder();
+    notifyListeners();
+  }
+
+  /// Save service order to storage
+  Future<void> _saveServiceOrder() async {
+    final order = _services.map((s) => s.id).toList();
+    await _prefs?.setStringList('service_order', order);
+  }
+
+  /// Load service order from storage
+  Future<void> _loadServiceOrder() async {
+    final order = _prefs?.getStringList('service_order');
+    if (order != null && order.isNotEmpty) {
+      _services.sort((a, b) {
+        final indexA = order.indexOf(a.id);
+        final indexB = order.indexOf(b.id);
+        if (indexA == -1) return 1;
+        if (indexB == -1) return -1;
+        return indexA.compareTo(indexB);
+      });
+    }
+  }
+
   // ============== PERSISTENCE ==============
 
   /// Sort services: favorites first
@@ -236,6 +268,79 @@ class ServiceProvider extends ChangeNotifier {
         .map((s) => jsonEncode({'id': s.id, 'name': s.name, 'url': s.url}))
         .toList();
     await _prefs?.setStringList(_customServicesKey, customJson);
+  }
+
+  // ============== EXPORT/IMPORT ==============
+
+  /// Export current configuration to JSON string
+  String exportConfigToJson() {
+    final config = {
+      'favorites': _services
+          .where((s) => s.isFavorite)
+          .map((s) => s.id)
+          .toList(),
+      'disabled': _services
+          .where((s) => !s.isEnabled)
+          .map((s) => s.id)
+          .toList(),
+      'customServices': _services
+          .where((s) => s.id.startsWith('custom_'))
+          .map((s) => {'id': s.id, 'name': s.name, 'url': s.url})
+          .toList(),
+    };
+    return jsonEncode(config);
+  }
+
+  /// Import configuration from JSON string
+  Future<bool> importConfigFromJson(String jsonString) async {
+    try {
+      final config = jsonDecode(jsonString) as Map<String, dynamic>;
+
+      // Apply favorites
+      final favoriteIds = List<String>.from(config['favorites'] ?? []);
+      for (var i = 0; i < _services.length; i++) {
+        _services[i] = _services[i].copyWith(
+          isFavorite: favoriteIds.contains(_services[i].id),
+        );
+      }
+
+      // Apply visibility
+      final disabledIds = List<String>.from(config['disabled'] ?? []);
+      for (var i = 0; i < _services.length; i++) {
+        _services[i] = _services[i].copyWith(
+          isEnabled: !disabledIds.contains(_services[i].id),
+        );
+      }
+
+      // Add custom services
+      final customServices = List<Map<String, dynamic>>.from(
+        config['customServices'] ?? [],
+      );
+      for (final cs in customServices) {
+        if (!_services.any((s) => s.id == cs['id'])) {
+          _services.add(
+            AIService(
+              id: cs['id'] as String,
+              name: cs['name'] as String,
+              url: cs['url'] as String,
+              description: 'IA personnalisée',
+              icon: Icons.smart_toy_outlined,
+            ),
+          );
+        }
+      }
+
+      // Save and sort
+      await _saveFavorites();
+      await _saveVisibility();
+      await _saveCustomServices();
+      _sortServices();
+      notifyListeners();
+
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 
   // ============== LOADING STATE ==============

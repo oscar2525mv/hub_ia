@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../providers/theme_provider.dart';
 import '../providers/service_provider.dart';
@@ -58,6 +59,51 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           const SizedBox(height: 24),
 
+          // Export/Import Section
+          _buildSection(
+            title: 'Données',
+            icon: Icons.import_export_rounded,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.upload_rounded),
+                title: const Text('Exporter config'),
+                subtitle: const Text('Copier dans le presse-papiers'),
+                onTap: () {
+                  final provider = context.read<ServiceProvider>();
+                  final json = provider.exportConfigToJson();
+                  Clipboard.setData(ClipboardData(text: json));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Configuration copiée!')),
+                  );
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.download_rounded),
+                title: const Text('Importer config'),
+                subtitle: const Text('Depuis le presse-papiers'),
+                onTap: () async {
+                  final data = await Clipboard.getData('text/plain');
+                  if (data?.text != null) {
+                    final provider = context.read<ServiceProvider>();
+                    final success = await provider.importConfigFromJson(
+                      data!.text!,
+                    );
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          success
+                              ? 'Configuration importée!'
+                              : 'Erreur: format invalide',
+                        ),
+                      ),
+                    );
+                  }
+                },
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+
           // Info Section
           _buildSection(
             title: 'À propos',
@@ -66,7 +112,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ListTile(
                 title: const Text('Version'),
                 trailing: Text(
-                  '1.4.0',
+                  '1.9.0',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: colorScheme.onSurfaceVariant,
                   ),

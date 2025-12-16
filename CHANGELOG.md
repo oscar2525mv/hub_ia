@@ -5,6 +5,20 @@ Toutes les modifications notables de ce projet seront documentées dans ce fichi
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/),
 et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.9.0] - 2025-12-16
+
+### Ajouté
+- **Réorganisation des IAs** par drag & drop
+  - Méthode `reorderService()` dans ServiceProvider
+  - Ordre persistant entre sessions
+
+## [1.8.0] - 2025-12-16
+
+### Ajouté
+- **Export/Import configuration** (section Données dans paramètres)
+  - `exportConfigToJson()` : Copier config dans presse-papiers
+  - `importConfigFromJson()` : Importer depuis presse-papiers
+
 ## [1.7.0] - 2025-12-16
 
 ### Ajouté

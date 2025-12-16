@@ -1,7 +1,7 @@
 name: hub_ia
 description: "Hub IA - Centralized hub for AI services"
 publish_to: 'none'
-version: 1.7.0
+version: 1.9.0
 
 environment:
   sdk: ^3.10.1
