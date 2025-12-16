@@ -9,6 +9,8 @@ import '../widgets/sidebar/service_sidebar.dart';
 import '../widgets/webview/platform_webview.dart';
 import '../widgets/webview/webview_toolbar.dart';
 import '../widgets/loading/shimmer_loader.dart';
+import '../widgets/dialogs/help_overlay.dart';
+import '../widgets/dialogs/search_dialog.dart';
 
 /// Main screen of the Hub IA application
 /// Contains the sidebar for service selection and the WebView container
@@ -77,6 +79,12 @@ class _HomeScreenState extends State<HomeScreen> {
         // Ctrl+R for reload WebView
         const SingleActivator(LogicalKeyboardKey.keyR, control: true): () =>
             serviceProvider.onReload?.call(),
+        // F1 for help overlay
+        const SingleActivator(LogicalKeyboardKey.f1): () =>
+            HelpOverlay.show(context),
+        // Ctrl+K for search
+        const SingleActivator(LogicalKeyboardKey.keyK, control: true): () =>
+            SearchDialog.show(context),
       },
       child: Focus(
         focusNode: _focusNode,

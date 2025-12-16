@@ -21,6 +21,12 @@ class AIService {
   /// Whether the service is currently active/selected
   bool isActive;
 
+  /// Whether the service is visible/enabled in the sidebar
+  bool isEnabled;
+
+  /// Whether the service is marked as favorite
+  bool isFavorite;
+
   AIService({
     required this.id,
     required this.name,
@@ -28,6 +34,8 @@ class AIService {
     required this.description,
     required this.icon,
     this.isActive = false,
+    this.isEnabled = true,
+    this.isFavorite = false,
   });
 
   /// Get the primary color for this service
@@ -47,6 +55,8 @@ class AIService {
     String? description,
     IconData? icon,
     bool? isActive,
+    bool? isEnabled,
+    bool? isFavorite,
   }) {
     return AIService(
       id: id ?? this.id,
@@ -55,6 +65,8 @@ class AIService {
       description: description ?? this.description,
       icon: icon ?? this.icon,
       isActive: isActive ?? this.isActive,
+      isEnabled: isEnabled ?? this.isEnabled,
+      isFavorite: isFavorite ?? this.isFavorite,
     );
   }
 

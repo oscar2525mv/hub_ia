@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:provider/provider.dart';
 import '../../core/theme/app_theme.dart';
 import '../../models/ai_service.dart';
+import '../../providers/service_provider.dart';
 
 /// Card widget representing an AI service in the sidebar
 /// Features hover effects, glow animations, and service-specific colors
@@ -142,6 +144,24 @@ class _ServiceCardState extends State<ServiceCard> {
                     ],
                   ),
                 ),
+                // Favorite button
+                GestureDetector(
+                  onTap: () {
+                    context.read<ServiceProvider>().toggleFavorite(
+                      widget.service.id,
+                    );
+                  },
+                  child: Icon(
+                    widget.service.isFavorite
+                        ? Icons.star_rounded
+                        : Icons.star_border_rounded,
+                    color: widget.service.isFavorite
+                        ? Colors.amber
+                        : colorScheme.onSurfaceVariant.withOpacity(0.5),
+                    size: 18,
+                  ),
+                ),
+                const SizedBox(width: 4),
                 // Active indicator
                 if (widget.isSelected)
                   Container(

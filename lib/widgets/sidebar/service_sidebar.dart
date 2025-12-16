@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../core/theme/app_theme.dart';
 
 import '../../providers/service_provider.dart';
+import '../../screens/settings_screen.dart';
 import '../cards/service_card.dart';
 
 /// Sidebar widget for navigating between AI services
@@ -148,6 +149,8 @@ class _ServiceSidebarState extends State<ServiceSidebar>
   }
 
   Widget _buildHeader(ServiceProvider provider) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Container(
       padding: EdgeInsets.symmetric(
         horizontal: _showExpandedContent ? 16 : 6,
@@ -184,6 +187,21 @@ class _ServiceSidebarState extends State<ServiceSidebar>
                     ],
                   ),
                 ),
+                // Settings button
+                IconButton(
+                  icon: Icon(
+                    Icons.settings_rounded,
+                    color: colorScheme.onSurfaceVariant,
+                    size: 20,
+                  ),
+                  tooltip: 'Paramètres',
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const SettingsScreen()),
+                    );
+                  },
+                ).animate().fadeIn(duration: 200.ms, delay: 150.ms),
               ],
             )
           : Center(child: _buildLogo(false)),
@@ -213,7 +231,8 @@ class _ServiceSidebarState extends State<ServiceSidebar>
   }
 
   Widget _buildServiceList(ServiceProvider provider) {
-    final services = provider.services;
+    // Filter to only show enabled services
+    final services = provider.services.where((s) => s.isEnabled).toList();
     final activeService = provider.activeService;
 
     return ListView.builder(

@@ -5,6 +5,21 @@ Toutes les modifications notables de ce projet seront documentées dans ce fichi
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/),
 et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] - 2025-12-16
+
+### Ajouté
+- **Écran de paramètres** (icône ⚙️ dans le header sidebar)
+  - Sélecteur de thème (Clair/Sombre/Système)
+  - Visibilité des IAs (activer/désactiver chaque IA)
+  - Formulaire d'ajout d'IA personnalisée
+- **Favoris** : étoile ⭐ sur les cards pour marquer les IAs favorites (triées en premier)
+- **Recherche rapide** (`Ctrl+K`) : dialogue de recherche pour sélectionner une IA
+- **Aide clavier** (`F1`) : overlay listant tous les raccourcis
+
+### Modifié
+- Le menu latéral filtre maintenant les IAs désactivées
+- Ajout de méthodes `toggleServiceVisibility()`, `toggleFavorite()`, `addCustomService()` dans ServiceProvider
+
 ## [1.3.0] - 2025-12-16
 
 ### Ajouté

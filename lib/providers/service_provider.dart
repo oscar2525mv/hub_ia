@@ -108,6 +108,48 @@ class ServiceProvider extends ChangeNotifier {
     selectService(service);
   }
 
+  /// Toggle service visibility (enabled/disabled in sidebar)
+  void toggleServiceVisibility(String id) {
+    final index = _services.indexWhere((s) => s.id == id);
+    if (index != -1) {
+      _services[index] = _services[index].copyWith(
+        isEnabled: !_services[index].isEnabled,
+      );
+      notifyListeners();
+    }
+  }
+
+  /// Toggle service favorite status
+  void toggleFavorite(String id) {
+    final index = _services.indexWhere((s) => s.id == id);
+    if (index != -1) {
+      _services[index] = _services[index].copyWith(
+        isFavorite: !_services[index].isFavorite,
+      );
+      // Re-sort to put favorites first
+      _services.sort((a, b) {
+        if (a.isFavorite && !b.isFavorite) return -1;
+        if (!a.isFavorite && b.isFavorite) return 1;
+        return 0;
+      });
+      notifyListeners();
+    }
+  }
+
+  /// Add a custom AI service
+  void addCustomService({required String name, required String url}) {
+    final id = 'custom_${DateTime.now().millisecondsSinceEpoch}';
+    final newService = AIService(
+      id: id,
+      name: name,
+      url: url,
+      description: 'IA personnalisée',
+      icon: Icons.smart_toy_outlined,
+    );
+    _services.add(newService);
+    notifyListeners();
+  }
+
   // ============== LOADING STATE ==============
 
   /// Set loading state
