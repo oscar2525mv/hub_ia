@@ -85,15 +85,31 @@ class _ServiceSidebarState extends State<ServiceSidebar>
     }
   }
 
+  /// Check if this sidebar is inside a Drawer (mobile mode)
+  bool _isInDrawer(BuildContext context) {
+    return context.findAncestorWidgetOfExactType<Drawer>() != null;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final isInDrawer = _isInDrawer(context);
+
     return Consumer<ServiceProvider>(
       builder: (context, provider, child) {
-        // Sync with provider state
-        if (provider.isSidebarExpanded != _isExpanded) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            _handleExpansionChange(provider.isSidebarExpanded);
-          });
+        // When in drawer (mobile), always force expanded state
+        if (isInDrawer) {
+          if (!_isExpanded) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              _handleExpansionChange(true);
+            });
+          }
+        } else {
+          // Desktop: Sync with provider state
+          if (provider.isSidebarExpanded != _isExpanded) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              _handleExpansionChange(provider.isSidebarExpanded);
+            });
+          }
         }
 
         return AnimatedBuilder(
@@ -235,31 +251,47 @@ class _ServiceSidebarState extends State<ServiceSidebar>
     final services = provider.services.where((s) => s.isEnabled).toList();
     final activeService = provider.activeService;
 
-    return ListView.builder(
+    return ReorderableListView.builder(
       padding: EdgeInsets.symmetric(
         vertical: 8,
         horizontal: _showExpandedContent ? 0 : 8,
       ),
+      onReorder: (oldIndex, newIndex) {
+        // Map filtered indices to global indices
+        final oldGlobalIndex = provider.services.indexOf(services[oldIndex]);
+        final newGlobalIndex = newIndex >= services.length
+            ? provider.services.indexOf(services[services.length - 1]) + 1
+            : provider.services.indexOf(services[newIndex]);
+        provider.reorderService(oldGlobalIndex, newGlobalIndex);
+      },
       itemCount: services.length,
+      buildDefaultDragHandles: false,
       itemBuilder: (context, index) {
         final service = services[index];
         final isSelected = activeService?.id == service.id;
 
         if (_showExpandedContent) {
-          return ServiceCard(
-                service: service,
-                isSelected: isSelected,
-                isExpanded: true,
-                onTap: () => provider.selectService(service),
-              )
-              .animate()
-              .fadeIn(
-                duration: 200.ms,
-                delay: Duration(milliseconds: 50 * index),
-              )
-              .slideX(begin: -0.1, end: 0);
+          return ReorderableDragStartListener(
+            key: ValueKey(service.id),
+            index: index,
+            child:
+                ServiceCard(
+                      service: service,
+                      isSelected: isSelected,
+                      isExpanded: true,
+                      onTap: () => provider.selectService(service),
+                      showDragHandle: true,
+                    )
+                    .animate()
+                    .fadeIn(
+                      duration: 200.ms,
+                      delay: Duration(milliseconds: 50 * index),
+                    )
+                    .slideX(begin: -0.1, end: 0),
+          );
         } else {
           return Center(
+            key: ValueKey(service.id),
             child: ServiceCardCompact(
               service: service,
               isSelected: isSelected,
@@ -272,6 +304,8 @@ class _ServiceSidebarState extends State<ServiceSidebar>
   }
 
   Widget _buildFooter(ServiceProvider provider) {
+    final isInDrawer = _isInDrawer(context);
+
     return ClipRect(
       child: Padding(
         padding: EdgeInsets.all(_showExpandedContent ? 12 : 8),
@@ -288,14 +322,28 @@ class _ServiceSidebarState extends State<ServiceSidebar>
                   ),
                   _ToggleButton(
                     isExpanded: _isExpanded,
-                    onTap: () => provider.toggleSidebar(),
+                    onTap: () {
+                      // In drawer mode: close drawer instead of collapsing
+                      if (isInDrawer) {
+                        Navigator.of(context).pop();
+                      } else {
+                        provider.toggleSidebar();
+                      }
+                    },
                   ),
                 ],
               )
             : Center(
                 child: _ToggleButton(
                   isExpanded: _isExpanded,
-                  onTap: () => provider.toggleSidebar(),
+                  onTap: () {
+                    // In drawer mode: close drawer instead of expanding
+                    if (isInDrawer) {
+                      Navigator.of(context).pop();
+                    } else {
+                      provider.toggleSidebar();
+                    }
+                  },
                 ),
               ),
       ),

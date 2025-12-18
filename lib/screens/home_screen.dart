@@ -23,6 +23,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final FocusNode _focusNode = FocusNode();
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
@@ -92,24 +93,32 @@ class _HomeScreenState extends State<HomeScreen> {
             final isMobile = constraints.maxWidth < 600;
 
             return Scaffold(
+              key: _scaffoldKey,
               // Drawer for mobile only
               drawer: isMobile ? const Drawer(child: ServiceSidebar()) : null,
-              body: Container(
-                decoration: BoxDecoration(
-                  gradient: AppTheme.getBackgroundGradient(isDark),
-                ),
-                child: Row(
-                  children: [
-                    // Sidebar (desktop only)
-                    if (!isMobile)
-                      const ServiceSidebar()
-                          .animate()
-                          .fadeIn(duration: 300.ms)
-                          .slideX(begin: -0.2, end: 0),
+              body: SafeArea(
+                // Only apply top safe area on mobile to avoid status bar overlap
+                top: isMobile,
+                bottom: false,
+                left: false,
+                right: false,
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: AppTheme.getBackgroundGradient(isDark),
+                  ),
+                  child: Row(
+                    children: [
+                      // Sidebar (desktop only)
+                      if (!isMobile)
+                        const ServiceSidebar()
+                            .animate()
+                            .fadeIn(duration: 300.ms)
+                            .slideX(begin: -0.2, end: 0),
 
-                    // Main content area
-                    Expanded(child: _buildMainContent(isMobile: isMobile)),
-                  ],
+                      // Main content area
+                      Expanded(child: _buildMainContent(isMobile: isMobile)),
+                    ],
+                  ),
                 ),
               ),
             );
@@ -136,7 +145,11 @@ class _HomeScreenState extends State<HomeScreen> {
             // WebView container
             Expanded(
               child: Container(
-                margin: const EdgeInsets.only(right: 12, bottom: 12),
+                margin: EdgeInsets.only(
+                  left: isMobile ? 12 : 0,
+                  right: 12,
+                  bottom: 12,
+                ),
                 decoration: BoxDecoration(
                   color: Theme.of(context).scaffoldBackgroundColor,
                   borderRadius: BorderRadius.circular(20),
@@ -200,6 +213,7 @@ class _HomeScreenState extends State<HomeScreen> {
         bottom: 8,
         left: isMobile ? 12 : 0,
       ),
+      width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       decoration: BoxDecoration(
         color: colorScheme.surface.withOpacity(0.8),
@@ -215,7 +229,7 @@ class _HomeScreenState extends State<HomeScreen> {
           if (isMobile)
             IconButton(
               icon: Icon(Icons.menu_rounded, color: activeService.primaryColor),
-              onPressed: () => Scaffold.of(context).openDrawer(),
+              onPressed: () => _scaffoldKey.currentState?.openDrawer(),
               tooltip: 'Menu',
             ),
           if (isMobile) const SizedBox(width: 8),
@@ -238,28 +252,32 @@ class _HomeScreenState extends State<HomeScreen> {
 
           const SizedBox(width: 12),
 
-          // Service name
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                activeService.name,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: activeService.primaryColor,
+          // Service name (Flexible to prevent overflow)
+          Flexible(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  activeService.name,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: activeService.primaryColor,
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
-              ),
-              Text(
-                activeService.url,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  fontSize: 11,
-                  color: activeService.primaryColor.withOpacity(0.7),
+                Text(
+                  activeService.url,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    fontSize: 11,
+                    color: activeService.primaryColor.withOpacity(0.7),
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
-              ),
-            ],
-          ).animate().fadeIn(duration: 200.ms).slideX(begin: -0.1, end: 0),
+              ],
+            ).animate().fadeIn(duration: 200.ms).slideX(begin: -0.1, end: 0),
+          ),
 
           const Spacer(),
 
@@ -274,110 +292,7 @@ class _HomeScreenState extends State<HomeScreen> {
             onForward: provider.onGoForward,
             onReload: provider.onReload,
           ),
-
-          const SizedBox(width: 16),
-
-          // Loading state indicator
-          if (provider.isLoading)
-            const LoadingDots().animate().fadeIn(duration: 200.ms),
-
-          // Navigation buttons
-          const SizedBox(width: 16),
-          _buildNavButton(
-            icon: Icons.arrow_back_rounded,
-            tooltip: 'Previous Service',
-            onTap: () => provider.previousService(),
-            accentColor: activeService.primaryColor,
-          ),
-          const SizedBox(width: 8),
-          _buildNavButton(
-            icon: Icons.arrow_forward_rounded,
-            tooltip: 'Next Service',
-            onTap: () => provider.nextService(),
-            accentColor: activeService.primaryColor,
-          ),
-
-          // Divider before theme toggle
-          Container(
-            margin: const EdgeInsets.symmetric(horizontal: 12),
-            width: 1,
-            height: 24,
-            color: colorScheme.outline.withOpacity(0.3),
-          ),
-
-          // Theme toggle button
-          Consumer<ThemeProvider>(
-            builder: (context, themeProvider, child) {
-              return Tooltip(
-                message: themeProvider.themeTooltip,
-                child: Material(
-                  color: Colors.transparent,
-                  child:
-                      InkWell(
-                            onTap: () => themeProvider.cycleTheme(),
-                            borderRadius: BorderRadius.circular(8),
-                            child: Container(
-                              width: 36,
-                              height: 36,
-                              decoration: BoxDecoration(
-                                color: colorScheme.surfaceContainerHighest,
-                                borderRadius: BorderRadius.circular(8),
-                                border: Border.all(
-                                  color: activeService.primaryColor.withOpacity(
-                                    0.5,
-                                  ),
-                                  width: 1,
-                                ),
-                              ),
-                              child: Icon(
-                                themeProvider.themeIcon,
-                                size: 18,
-                                color: activeService.primaryColor,
-                              ),
-                            ),
-                          )
-                          .animate(key: ValueKey(themeProvider.themeMode))
-                          .scale(
-                            begin: const Offset(0.8, 0.8),
-                            end: const Offset(1.0, 1.0),
-                            duration: 200.ms,
-                          )
-                          .fadeIn(duration: 200.ms),
-                ),
-              );
-            },
-          ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildNavButton({
-    required IconData icon,
-    required String tooltip,
-    required VoidCallback onTap,
-    required Color accentColor,
-  }) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return Tooltip(
-      message: tooltip,
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(8),
-          child: Container(
-            width: 32,
-            height: 32,
-            decoration: BoxDecoration(
-              color: colorScheme.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: accentColor.withOpacity(0.3), width: 1),
-            ),
-            child: Icon(icon, size: 16, color: accentColor),
-          ),
-        ),
       ),
     );
   }

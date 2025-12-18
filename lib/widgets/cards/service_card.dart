@@ -12,6 +12,7 @@ class ServiceCard extends StatefulWidget {
   final bool isSelected;
   final bool isExpanded;
   final VoidCallback onTap;
+  final bool showDragHandle;
 
   const ServiceCard({
     super.key,
@@ -19,6 +20,7 @@ class ServiceCard extends StatefulWidget {
     required this.isSelected,
     required this.isExpanded,
     required this.onTap,
+    this.showDragHandle = false,
   });
 
   @override
@@ -161,6 +163,15 @@ class _ServiceCardState extends State<ServiceCard> {
                     size: 18,
                   ),
                 ),
+                // Drag handle
+                if (widget.showDragHandle) ...[
+                  const SizedBox(width: 8),
+                  Icon(
+                    Icons.drag_handle_rounded,
+                    color: colorScheme.onSurfaceVariant.withOpacity(0.5),
+                    size: 20,
+                  ),
+                ],
                 const SizedBox(width: 4),
                 // Active indicator
                 if (widget.isSelected)

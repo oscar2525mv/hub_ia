@@ -5,21 +5,21 @@ Toutes les modifications notables de ce projet seront documentées dans ce fichi
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/),
 et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.9.0] - 2025-12-16
+## [1.9.0] - 2025-12-17
 
 ### Ajouté
 - **Réorganisation des IAs** par drag & drop
   - Méthode `reorderService()` dans ServiceProvider
   - Ordre persistant entre sessions
 
-## [1.8.0] - 2025-12-16
+## [1.8.0] - 2025-12-17
 
 ### Ajouté
 - **Export/Import configuration** (section Données dans paramètres)
   - `exportConfigToJson()` : Copier config dans presse-papiers
   - `importConfigFromJson()` : Importer depuis presse-papiers
 
-## [1.7.0] - 2025-12-16
+## [1.7.0] - 2025-12-17
 
 ### Ajouté
 - **Layout responsive** adaptatif pour mobile
@@ -27,14 +27,14 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   - TopBar adaptatif mobile/desktop
 - Détection automatique taille écran
 
-## [1.6.0] - 2025-12-16
+## [1.6.0] - 2025-12-17
 
 ### Ajouté
 - **Persistance sessions WebView** (cookies et localStorage)
   - WebView2 (Windows) utilise stockage automatique
 - Ajout dépendance `path_provider`
 
-## [1.5.0] - 2025-12-16
+## [1.5.0] - 2025-12-17
 
 ### Ajouté
 - **Persistance des données** via SharedPreferences
@@ -94,7 +94,7 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - `WindowsWebView` expose maintenant les méthodes de navigation
 - `MobileWebView` expose maintenant les méthodes de navigation avec support natif
 
-## [1.0.0] - 2025-12-16
+## [1.0.0] - 2025-12-15
 
 ### Ajouté
 - **Hub centralisé** pour accéder à plusieurs services IA (ChatGPT, Gemini, Claude, Copilot, Perplexity, Mistral)
