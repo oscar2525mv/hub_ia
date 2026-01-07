@@ -22,6 +22,11 @@
     padding: 0;
 }
 
+html {
+    scroll-padding-top: 100px; /* HEIGHT OFFSET: Change this value to adjust scroll position */
+    scroll-behavior: smooth;
+}
+
 body {
     font-family: var(--font-body);
     background-color: var(--bg-color);
@@ -298,7 +303,7 @@ h1 {
 
 /* Markdown Content */
 .markdown-preview {
-    max-height: 200px;
+    max-height: 220px;
     overflow: hidden;
     position: relative;
     color: var(--text-muted);
@@ -616,4 +621,6 @@ h1 {
     .markdown-preview.collapsed::after {
         display: none;
     }
+
+    
 }

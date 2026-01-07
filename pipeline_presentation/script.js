@@ -118,16 +118,18 @@ document.addEventListener('keydown', (e) => {
 
 /* Navigation & ScrollSpy */
 function initScrollSpy() {
-    const sections = ['prompt', 'tasks', 'plan', 'walkthrough', 'application'];
+    const sections = ['prompt', 'tasks', 'walkthrough', 'versions', 'defis', 'application'];
     const navLinks = document.querySelectorAll('.nav-link');
 
     window.addEventListener('scroll', () => {
         let current = '';
 
         sections.forEach(section => {
-            const element = document.getElementById(section);
             if (element) {
                 const sectionTop = element.offsetTop;
+                // DETECTION OFFSET: Change 120 to adjust when the menu highlights
+                // Higher number = highlights sooner (lower on screen)
+                // Lower number = highlights later (higher on screen)
                 if (window.scrollY >= (sectionTop - 200)) {
                     current = section;
                 }
@@ -136,7 +138,7 @@ function initScrollSpy() {
 
         navLinks.forEach(link => {
             link.classList.remove('active');
-            if (link.getAttribute('href').includes(current)) {
+            if (current && link.getAttribute('href').includes(current)) {
                 link.classList.add('active');
             }
         });
